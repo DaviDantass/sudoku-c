@@ -65,8 +65,14 @@ gcc sudoku.c -o sudoku
 
 ---
 
-## 🔍 Exemplo de saída
 
+```
+
+---
+
+## 🧠 Conceitos aplicados## 🔍 Exemplo de saída
+
+```
 +-------+-------+-------+
 | . . 4 | 8 3 . | . . 2 |
 | 1 . . | . . 7 | 2 . . |
@@ -82,11 +88,7 @@ gcc sudoku.c -o sudoku
 +-------+-------+-------+
 Vidas restantes: 3
 Digite linha(1-9) coluna(1-9) numero(1-9)
-```
 
----
-
-## 🧠 Conceitos aplicados
 
 * **Backtracking recursivo**
 * **Structs e manipulação de dados**
