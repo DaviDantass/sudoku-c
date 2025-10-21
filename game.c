@@ -103,9 +103,14 @@ void copiar_grid(int origem[N][N], int destino[N][N]) {
 
 // Mostra o Sudoku no terminal
 void mostrar(int grid[N][N]) {
-    printf("+-------+-------+-------+\n");
+    // Cabeçalho com números das colunas
+    printf("    1 2 3   4 5 6   7 8 9\n");
+    printf("  +-------+-------+-------+\n");
+    
     for (int i = 0; i < N; i++) {
-        printf("| ");
+        // Número da linha
+        printf("%d | ", i+1);
+        
         for (int j = 0; j < N; j++) {
             if (grid[i][j] == 0)
                 printf(". ");
@@ -115,8 +120,9 @@ void mostrar(int grid[N][N]) {
                 printf("| ");
         }
         printf("\n");
+        
         if ((i+1)%3 == 0)
-            printf("+-------+-------+-------+\n");
+            printf("  +-------+-------+-------+\n");
     }
 }
 
