@@ -180,6 +180,12 @@ void jogar(Sudoku *sudoku) {
 
 int main() {
     srand(time(NULL));
+    int easy = 40;
+    int normal = 49;
+    int hard = 56;
+    int impossible = 60;
+    int difficulty;
+    int difset;
 
     Sudoku jogo;
     jogo.vidas = VIDAS_INICIAIS;
@@ -192,7 +198,29 @@ int main() {
     gerar_completo(jogo.tabuleiro);
     copiar_grid(jogo.tabuleiro, jogo.solucao);
 
-    criar_desafio(jogo.tabuleiro, 40);
+    printf("Selecione a dificuldade (1 a 4):\n");
+    scanf("%d", &difficulty);
+    switch(difficulty) {
+        case 1:
+            difset = easy;
+            break;
+        case 2:
+            difset = normal;
+            break;
+        case 3:
+            difset = hard;
+            break;
+        case 4:
+            difset = impossible;
+            break;
+        default:
+            printf("Dificuldade invalida, usando normal.\n");
+            difset = normal;
+            break;
+    }
+
+
+    criar_desafio(jogo.tabuleiro, difset);
     printf("\nSudoku para jogar:\n");
     mostrar(jogo.tabuleiro);
 
