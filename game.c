@@ -1,6 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <locale.h>
+#ifdef _WIN32
+    #include <windows.h>
+#else
+    #include <unistd.h>
+    #define Sleep(x) usleep((x)*1000)
+#endif
 
 #define N 9
 #define VIDAS_INICIAIS 3  // Quantas vidas o jogador começa
@@ -126,13 +133,33 @@ void mostrar(int grid[N][N]) {
     }
 }
 
+int verificar_vitoria(Sudoku *sudoku) {
+    for (int i = 0; i < N; i++){
+        for (int j = 0; j < N; j++){
+            if (sudoku->tabuleiro[i][j] != sudoku->solucao[i][j])
+                return 0;
+        }
+    }
+    return 1;
+}
+
+// Mostra o menu de comandos
+void mostrar_menu() {
+    printf("\n========================================\n");
+    printf("COMANDOS:\n");
+    printf("  linha(1 - 9) coluna(1 - 9) número(1 - 9) - Preencher célula\n");
+    printf("  0 0 0 - Sair do jogo\n");
+    printf("  0 0 1 - Ver solução\n");
+    printf("  0 0 9 - Mostrar este menu\n");
+    printf("========================================\n");
+}
+
 // Loop de jogo com vidas
 void jogar(Sudoku *sudoku) {
+    mostrar_menu();
     while (sudoku->vidas > 0) {
         int linha, coluna, num;
         printf("\nVidas restantes: %d\n", sudoku->vidas);
-        printf("Digite linha(1-9) coluna(1-9) numero(1-9) ");
-        printf("(0 0 0 para sair, 0 0 1 para ver solucao): ");
         scanf("%d %d %d", &linha, &coluna, &num);
 
         // Sair
@@ -149,36 +176,69 @@ void jogar(Sudoku *sudoku) {
             break;
         }
 
+        // Mostrar menu
+        if (linha == 0 && coluna == 0 && num == 9) {
+            mostrar_menu();
+            continue;
+        }
+
         linha--; coluna--;
 
         if (linha < 0 || linha >= 9 || coluna < 0 || coluna >= 9 || num < 1 || num > 9) {
-            printf("Entrada invalida.\n");
+            printf("Entrada inválida.\n");
             continue;
         }
 
         if (sudoku->tabuleiro[linha][coluna] != 0) {
-            printf("Essa posicao ja esta preenchida.\n");
+            printf("Essa posição já está preenchida.\n");
             continue;
         }
 
         if (sudoku->solucao[linha][coluna] != num) {
-            printf("Numero incorreto!\n");
+            printf("NÚmero incorreto! Você perdeu uma vida...\n");
             sudoku->vidas--;
             if (sudoku->vidas == 0) {
-                printf("Voce perdeu todas as vidas!\n");
+                printf("\n*** GAME OVER - Você perdeu todas as vidas! ***\n");
+                printf("\n=== SOLUÇÃO ===\n");
                 mostrar(sudoku->solucao);
                 break;
+            } else {
+                mostrar(sudoku->tabuleiro);
             }
+            continue;
         } else {
             sudoku->tabuleiro[linha][coluna] = num;
             printf("Correto!\n");
-        }
-
-        mostrar(sudoku->tabuleiro);
+            mostrar(sudoku->tabuleiro);
+            if (verificar_vitoria(sudoku)) {
+                printf("\n");
+                printf("+-----------------------------------+\n");
+                printf("|  *** PARABÉNS! VOCÊ VENCEU! ***   |\n");
+                printf("|   Sudoku completado com sucesso!  |\n");
+                printf("+-----------------------------------+\n");
+                break;
+        }}
+        
     }
 }
 
+void loading_animation(int seconds) {
+    const char spinner[] = {'|', '/', '-', '\\'};
+    int i = 0;
+    clock_t start_time = clock();
+    while (((double)(clock() - start_time) / CLOCKS_PER_SEC) < seconds) {
+        printf("\rGerando Sudoku completo... %c", spinner[i++ % 4]);
+        fflush(stdout);
+        Sleep(100);  // 100 ms
+    }
+    printf("\rGerando Sudoku completo... concluído!  \n");
+}
+
 int main() {
+    #ifdef _WIN32
+        SetConsoleOutputCP(65001);  // UTF-8
+    #endif
+    setlocale(LC_ALL, "pt_BR.UTF-8");
     srand(time(NULL));
     int easy = 40;
     int normal = 49;
@@ -194,11 +254,11 @@ int main() {
         for (int j = 0; j < N; j++)
             jogo.tabuleiro[i][j] = 0;
 
-    printf("Gerando Sudoku completo...\n");
+    loading_animation(1);  // Animação de 1 segundo
     gerar_completo(jogo.tabuleiro);
     copiar_grid(jogo.tabuleiro, jogo.solucao);
 
-    printf("Selecione a dificuldade (1 a 4):\n");
+    printf("Selecione a dificuldade:\n 1 - Fácil\n 2 - Normal\n 3 - Difícil\n 4 - Impossível\n");
     scanf("%d", &difficulty);
     switch(difficulty) {
         case 1:
@@ -214,7 +274,7 @@ int main() {
             difset = impossible;
             break;
         default:
-            printf("Dificuldade invalida, usando normal.\n");
+            printf("Dificuldade inválida, usando normal.\n");
             difset = normal;
             break;
     }
